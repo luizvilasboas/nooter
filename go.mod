@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/swaggo/http-swagger v1.3.4

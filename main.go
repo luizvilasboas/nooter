@@ -27,9 +27,12 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {
-	storage.InitDB("todos.db")
+	dbPath := "todos.db"
 
-	r := routes.SetupRouter()
+	defaultStorage := &storage.DefaultStorage{}
+	defaultStorage.InitDB(dbPath)
+
+	r := routes.SetupRouter(defaultStorage)
 
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 

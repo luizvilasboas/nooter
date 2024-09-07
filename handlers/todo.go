@@ -15,6 +15,10 @@ type JSONError struct {
 	Message string `json:"message"`
 }
 
+type Handlers struct {
+	Storage storage.Storage
+}
+
 // GetTodos godoc
 // @Summary Lista todas as tarefas
 // @Description Retorna uma lista de todas as tarefas cadastradas
@@ -24,8 +28,8 @@ type JSONError struct {
 // @Success 200 {array} models.Todo
 // @Failure 500 {object} JSONError
 // @Router /todos [get]
-func GetTodos(w http.ResponseWriter, r *http.Request) {
-	todos, err := storage.GetTodos()
+func (h *Handlers) GetTodos(w http.ResponseWriter, r *http.Request) {
+	todos, err := h.Storage.GetTodos()
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
 		return
@@ -51,7 +55,7 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} JSONError
 // @Failure 500 {object} JSONError
 // @Router /todos [post]
-func CreateTodo(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	var req models.TodoRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Bad Request", "Invalid JSON payload")
@@ -64,7 +68,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 		Done:    req.Done,
 	}
 
-	createdTodo, err := storage.AddTodo(todo)
+	createdTodo, err := h.Storage.AddTodo(todo)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
 		return
@@ -87,7 +91,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} JSONError
 // @Failure 500 {object} JSONError
 // @Router /todos/{id} [get]
-func GetTodoByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetTodoByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -95,7 +99,7 @@ func GetTodoByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := storage.GetTodoByID(id)
+	todo, err := h.Storage.GetTodoByID(id)
 	if err != nil {
 		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
 		return
@@ -118,7 +122,7 @@ func GetTodoByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} JSONError
 // @Failure 500 {object} JSONError
 // @Router /todos/{id} [put]
-func UpdateTodo(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -138,7 +142,7 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		Done:    req.Done,
 	}
 
-	todo, err := storage.UpdateTodo(id, updatedTodo)
+	todo, err := h.Storage.UpdateTodo(id, updatedTodo)
 	if err != nil {
 		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
 		return
@@ -160,7 +164,7 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} JSONError
 // @Failure 500 {object} JSONError
 // @Router /todos/{id} [delete]
-func DeleteTodoByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) DeleteTodoByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -168,7 +172,7 @@ func DeleteTodoByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.DeleteTodoByID(id)
+	err = h.Storage.DeleteTodoByID(id)
 	if err != nil {
 		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
 		return

@@ -7,20 +7,25 @@ import (
 
 	"github.com/gorilla/mux"
 	"gitlab.com/olooeez/nooter/handlers"
+	"gitlab.com/olooeez/nooter/storage"
 )
 
-func SetupRouter() *mux.Router {
+func SetupRouter(storage storage.Storage) *mux.Router {
 	router := mux.NewRouter()
 
 	router.Use(loggingMiddleware)
 	router.Use(recoveryMiddleware)
 
+	h := &handlers.Handlers{
+		Storage: storage,
+	}
+
 	api := router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/todos", handlers.GetTodos).Methods(http.MethodGet)
-	api.HandleFunc("/todos", handlers.CreateTodo).Methods(http.MethodPost)
-	api.HandleFunc("/todos/{id:[0-9]+}", handlers.GetTodoByID).Methods(http.MethodGet)
-	api.HandleFunc("/todos/{id:[0-9]+}", handlers.UpdateTodo).Methods(http.MethodPut)
-	api.HandleFunc("/todos/{id:[0-9]+}", handlers.DeleteTodoByID).Methods(http.MethodDelete)
+	api.HandleFunc("/todos", h.GetTodos).Methods(http.MethodGet)
+	api.HandleFunc("/todos", h.CreateTodo).Methods(http.MethodPost)
+	api.HandleFunc("/todos/{id:[0-9]+}", h.GetTodoByID).Methods(http.MethodGet)
+	api.HandleFunc("/todos/{id:[0-9]+}", h.UpdateTodo).Methods(http.MethodPut)
+	api.HandleFunc("/todos/{id:[0-9]+}", h.DeleteTodoByID).Methods(http.MethodDelete)
 
 	return router
 }
