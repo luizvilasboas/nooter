@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	models "gitlab.com/olooeez/nooter/models"
 )
 
 // MockStorage is a mock of Storage interface.
@@ -34,63 +33,33 @@ func (m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return m.recorder
 }
 
-// AddTodo mocks base method.
-func (m *MockStorage) AddTodo(todo models.Todo) (models.Todo, error) {
+// Create mocks base method.
+func (m *MockStorage) Create(table string, data interface{}) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddTodo", todo)
-	ret0, _ := ret[0].(models.Todo)
+	ret := m.ctrl.Call(m, "Create", table, data)
+	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddTodo indicates an expected call of AddTodo.
-func (mr *MockStorageMockRecorder) AddTodo(todo interface{}) *gomock.Call {
+// Create indicates an expected call of Create.
+func (mr *MockStorageMockRecorder) Create(table, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTodo", reflect.TypeOf((*MockStorage)(nil).AddTodo), todo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockStorage)(nil).Create), table, data)
 }
 
-// DeleteTodoByID mocks base method.
-func (m *MockStorage) DeleteTodoByID(id int) error {
+// Delete mocks base method.
+func (m *MockStorage) Delete(table, conditions string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteTodoByID", id)
+	ret := m.ctrl.Call(m, "Delete", table, conditions)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteTodoByID indicates an expected call of DeleteTodoByID.
-func (mr *MockStorageMockRecorder) DeleteTodoByID(id interface{}) *gomock.Call {
+// Delete indicates an expected call of Delete.
+func (mr *MockStorageMockRecorder) Delete(table, conditions interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTodoByID", reflect.TypeOf((*MockStorage)(nil).DeleteTodoByID), id)
-}
-
-// GetTodoByID mocks base method.
-func (m *MockStorage) GetTodoByID(id int) (models.Todo, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTodoByID", id)
-	ret0, _ := ret[0].(models.Todo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTodoByID indicates an expected call of GetTodoByID.
-func (mr *MockStorageMockRecorder) GetTodoByID(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodoByID", reflect.TypeOf((*MockStorage)(nil).GetTodoByID), id)
-}
-
-// GetTodos mocks base method.
-func (m *MockStorage) GetTodos() ([]models.Todo, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTodos")
-	ret0, _ := ret[0].([]models.Todo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTodos indicates an expected call of GetTodos.
-func (mr *MockStorageMockRecorder) GetTodos() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodos", reflect.TypeOf((*MockStorage)(nil).GetTodos))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStorage)(nil).Delete), table, conditions)
 }
 
 // InitDB mocks base method.
@@ -105,17 +74,30 @@ func (mr *MockStorageMockRecorder) InitDB(filepath interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitDB", reflect.TypeOf((*MockStorage)(nil).InitDB), filepath)
 }
 
-// UpdateTodo mocks base method.
-func (m *MockStorage) UpdateTodo(id int, updatedTodo models.Todo) (models.Todo, error) {
+// Read mocks base method.
+func (m *MockStorage) Read(table, conditions string, dest interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTodo", id, updatedTodo)
-	ret0, _ := ret[0].(models.Todo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Read", table, conditions, dest)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// UpdateTodo indicates an expected call of UpdateTodo.
-func (mr *MockStorageMockRecorder) UpdateTodo(id, updatedTodo interface{}) *gomock.Call {
+// Read indicates an expected call of Read.
+func (mr *MockStorageMockRecorder) Read(table, conditions, dest interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodo", reflect.TypeOf((*MockStorage)(nil).UpdateTodo), id, updatedTodo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockStorage)(nil).Read), table, conditions, dest)
+}
+
+// Update mocks base method.
+func (m *MockStorage) Update(table string, data interface{}, conditions string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", table, data, conditions)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockStorageMockRecorder) Update(table, data, conditions interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockStorage)(nil).Update), table, data, conditions)
 }

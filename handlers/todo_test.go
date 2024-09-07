@@ -13,7 +13,6 @@ import (
 	"gitlab.com/olooeez/nooter/models"
 )
 
-// setupTest initializes the mock controller, mock storage, and handlers, and returns them
 func setupTest(t *testing.T) (*gomock.Controller, *Handlers, *mocks.MockStorage) {
 	ctrl := gomock.NewController(t)
 	mockStorage := mocks.NewMockStorage(ctrl)
@@ -25,7 +24,7 @@ func TestGetTodos(t *testing.T) {
 	ctrl, handlers, mockStorage := setupTest(t)
 	defer ctrl.Finish()
 
-	mockStorage.EXPECT().GetTodos().Return([]models.Todo{}, nil)
+	mockStorage.EXPECT().Read("todos", "1=1", gomock.Any()).Return(nil)
 
 	req, _ := http.NewRequest(http.MethodGet, "/todos", nil)
 	rr := httptest.NewRecorder()
@@ -64,7 +63,7 @@ func TestCreateTodo(t *testing.T) {
 		Done:    false,
 	}
 
-	mockStorage.EXPECT().AddTodo(gomock.Any()).Return(expectedTodo, nil)
+	mockStorage.EXPECT().Create("todos", gomock.Any()).Return(expectedTodo.ID, nil)
 
 	body, _ := json.Marshal(newTodo)
 	req, _ := http.NewRequest(http.MethodPost, "/todos", bytes.NewBuffer(body))
@@ -99,7 +98,13 @@ func TestGetTodoByID(t *testing.T) {
 		Done:    false,
 	}
 
-	mockStorage.EXPECT().GetTodoByID(1).Return(expectedTodo, nil)
+	mockStorage.EXPECT().Read("todos", "id = 1", gomock.Any()).DoAndReturn(
+		func(table string, conditions string, dest interface{}) error {
+			todos := dest.(*[]models.Todo)
+			*todos = append(*todos, expectedTodo)
+			return nil
+		},
+	)
 
 	req, _ := http.NewRequest(http.MethodGet, "/todos/1", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "1"})
@@ -133,7 +138,7 @@ func TestUpdateTodo(t *testing.T) {
 		Done:    true,
 	}
 
-	mockStorage.EXPECT().UpdateTodo(1, gomock.Any()).Return(updatedTodo, nil)
+	mockStorage.EXPECT().Update("todos", gomock.Any(), "id = 1").Return(nil)
 
 	reqBody, _ := json.Marshal(models.TodoRequest{
 		Title:   "Updated Title",
@@ -167,7 +172,7 @@ func TestDeleteTodoByID(t *testing.T) {
 	ctrl, handlers, mockStorage := setupTest(t)
 	defer ctrl.Finish()
 
-	mockStorage.EXPECT().DeleteTodoByID(1).Return(nil)
+	mockStorage.EXPECT().Delete("todos", "id = 1").Return(nil)
 
 	req, _ := http.NewRequest(http.MethodDelete, "/todos/1", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "1"})

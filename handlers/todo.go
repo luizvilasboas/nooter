@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -29,15 +30,11 @@ type Handlers struct {
 // @Failure 500 {object} JSONError
 // @Router /todos [get]
 func (h *Handlers) GetTodos(w http.ResponseWriter, r *http.Request) {
-	todos, err := h.Storage.GetTodos()
+	var todos []models.Todo
+	err := h.Storage.Read("todos", "1=1", &todos)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
 		return
-	}
-
-	// Retorna uma lista vazia se não houver tarefas
-	if todos == nil {
-		todos = []models.Todo{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -68,15 +65,16 @@ func (h *Handlers) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		Done:    req.Done,
 	}
 
-	createdTodo, err := h.Storage.AddTodo(todo)
+	id, err := h.Storage.Create("todos", &todo)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
 		return
 	}
 
+	todo.ID = id
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdTodo)
+	json.NewEncoder(w).Encode(todo)
 }
 
 // GetTodoByID godoc
@@ -99,14 +97,16 @@ func (h *Handlers) GetTodoByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := h.Storage.GetTodoByID(id)
-	if err != nil {
+	var todos []models.Todo
+	condition := fmt.Sprintf("id = %d", id)
+	err = h.Storage.Read("todos", condition, &todos)
+	if err != nil || len(todos) == 0 {
 		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(todos[0])
 }
 
 // UpdateTodo godoc
@@ -137,19 +137,21 @@ func (h *Handlers) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updatedTodo := models.Todo{
+		ID:      id,
 		Title:   req.Title,
 		Details: req.Details,
 		Done:    req.Done,
 	}
 
-	todo, err := h.Storage.UpdateTodo(id, updatedTodo)
+	condition := fmt.Sprintf("id = %d", id)
+	err = h.Storage.Update("todos", &updatedTodo, condition)
 	if err != nil {
-		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
+		writeJSONError(w, http.StatusInternalServerError, "Internal Server Error", err.Error())
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(updatedTodo)
 }
 
 // DeleteTodoByID godoc
@@ -172,7 +174,8 @@ func (h *Handlers) DeleteTodoByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Storage.DeleteTodoByID(id)
+	condition := fmt.Sprintf("id = %d", id)
+	err = h.Storage.Delete("todos", condition)
 	if err != nil {
 		writeJSONError(w, http.StatusNotFound, "Not Found", "Todo not found")
 		return
