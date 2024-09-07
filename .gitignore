@@ -13,3 +13,6 @@
 
 # Swagger docs folder
 docs
+
+# SQLite database
+*.db
