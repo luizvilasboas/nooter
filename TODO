@@ -1,4 +1,5 @@
 Initial project overview:
+  ☐ Use Gin framework
   ☐ Reewrite tabel to be a note, not a task
   ☐ Create categories of notes
   ☐ Add a interface with React and MaterialUI
