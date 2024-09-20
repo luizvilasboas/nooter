@@ -133,7 +133,7 @@ func UpdateNote(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "ID da Nota"
-// @Success 204 {object} SuccessResponse
+// @Success 200 {object} SuccessResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /notes/{id} [delete]
 func DeleteNote(c *gin.Context) {
