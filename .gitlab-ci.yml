@@ -1,0 +1,27 @@
+stages:
+  - build
+  - test
+
+variables:
+  GO111MODULE: "on"
+
+build:
+  stage: build
+  script:
+    - go build
+  tags:
+    - golang
+  only:
+    - main
+
+test:
+  stage: test
+  before_script:
+    - go mod tidy
+  script:
+    - go test -v ./...
+  tags:
+    - golang
+  only:
+    - merge_requests
+    - main
