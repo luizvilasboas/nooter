@@ -31,7 +31,7 @@ import (
 // @license.name MIT
 // @license.url https://gitlab.com/olooeez/nooter/-/blob/main/LICENSE
 // @host localhost:8080
-// @BasePath /api
+// @BasePath /api/v1
 func main() {
 	db, err := gorm.Open(sqlite.Open("nooter.db"), &gorm.Config{})
 	if err != nil {

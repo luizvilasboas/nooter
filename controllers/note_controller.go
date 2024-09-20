@@ -7,18 +7,7 @@ import (
 	"gitlab.com/olooeez/nooter/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
-
-var DB *gorm.DB
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
-type SuccessResponse struct {
-	Message string `json:"message"`
-}
 
 // GetAllNotes godoc
 // @Summary Lista todas as notas
@@ -72,10 +61,22 @@ func GetNoteByID(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Router /notes [post]
 func CreateNote(c *gin.Context) {
-	var note models.Note
-	if err := c.ShouldBindJSON(&note); err != nil {
+	var noteCreate models.NoteCreate
+	if err := c.ShouldBindJSON(&noteCreate); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Dados inválidos"})
 		return
+	}
+
+	var category models.Category
+	if err := DB.First(&category, noteCreate.CategoryID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Categoria inválida"})
+		return
+	}
+
+	note := models.Note{
+		Title:      noteCreate.Title,
+		Content:    noteCreate.Content,
+		CategoryID: noteCreate.CategoryID,
 	}
 
 	if err := DB.Create(&note).Error; err != nil {
@@ -102,13 +103,12 @@ func UpdateNote(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	var note models.Note
-
 	if err := DB.First(&note, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, ErrorResponse{Message: "Nota não encontrada"})
 		return
 	}
 
-	var updatedNote models.Note
+	var updatedNote models.NoteCreate
 	if err := c.ShouldBindJSON(&updatedNote); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Dados inválidos"})
 		return
@@ -116,10 +116,17 @@ func UpdateNote(c *gin.Context) {
 
 	note.Title = updatedNote.Title
 	note.Content = updatedNote.Content
-	note.UpdatedAt = updatedNote.UpdatedAt
+
+	var category models.Category
+	if err := DB.First(&category, updatedNote.CategoryID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Categoria inválida"})
+		return
+	}
+
+	note.CategoryID = updatedNote.CategoryID
 
 	if err := DB.Save(&note).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "Dados inválidos"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "Não foi possível atualizar a nota"})
 		return
 	}
 
