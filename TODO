@@ -1,6 +1,6 @@
 Initial project overview:
   ✔ Use Gin framework @done(24-09-20 09:50)
-  ☐ Create Unit tests @started(24-09-20 09:50)
+  ✔ Create Unit tests @started(24-09-20 09:50) @done(24-09-20 10:03) @lasted(13m53s)
   ☐ Add CI pipeline in GitLab
   ☐ Reewrite tabel to be a note, not a task
   ☐ Create categories of notes
