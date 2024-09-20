@@ -8,8 +8,8 @@ variables:
 build:
   stage: build
   before_script:
-    - swag init
     - go mod tidy
+    - swag init
   script:
     - go build
   tags:
