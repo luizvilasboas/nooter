@@ -5,12 +5,13 @@ stages:
 variables:
   GO111MODULE: "on"
 
+before_script:
+  - go install github.com/swaggo/swag/cmd/swag@latest
+  - swag init
+  - go mod tidy
+
 build:
   stage: build
-  before_script:
-    - go install github.com/swaggo/swag/cmd/swag@latest
-    - swag init
-    - go mod tidy
   script:
     - go build
   tags:
@@ -20,8 +21,6 @@ build:
 
 test:
   stage: test
-  before_script:
-    - go mod tidy
   script:
     - go test -v ./...
   tags:
