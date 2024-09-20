@@ -8,8 +8,9 @@ variables:
 build:
   stage: build
   before_script:
-    - go mod tidy
+    - go install github.com/swaggo/swag/cmd/swag@latest
     - swag init
+    - go mod tidy
   script:
     - go build
   tags:
