@@ -1,5 +1,7 @@
 Initial project overview:
-  ☐ Use Gin framework
+  ✔ Use Gin framework @done(24-09-20 09:50)
+  ☐ Create Unit tests @started(24-09-20 09:50)
+  ☐ Add CI pipeline in GitLab
   ☐ Reewrite tabel to be a note, not a task
   ☐ Create categories of notes
   ☐ Add a interface with React and MaterialUI
