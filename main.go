@@ -1,41 +1,94 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
 
-	_ "github.com/gorilla/mux"
-	httpSwagger "github.com/swaggo/http-swagger"
-	_ "gitlab.com/olooeez/nooter/docs"
+	"gitlab.com/olooeez/nooter/controllers"
+	"gitlab.com/olooeez/nooter/middlewares"
 	"gitlab.com/olooeez/nooter/routes"
-	"gitlab.com/olooeez/nooter/storage"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-migrate/migrate"
+	"github.com/golang-migrate/migrate/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/source/file"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "gitlab.com/olooeez/nooter/docs"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-// @title Todo API
-// @version 1.0
-// @description API para gerenciar tarefas (todos) com Go e SQLite.
-// @termsOfService http://swagger.io/terms/
+// @title Nooter API
+// @version 0.1.0
+// @description Esta é uma API para gerenciar notas.
 
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
+// @contact.name Luiz Felipe de Castro Vilas Boas
+// @contact.url https://olooeez.gitlab.io
+// @contact.email luizfelipecastrovb@gmail.com
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
+// @license.name MIT
+// @license.url https://gitlab.com/olooeez/nooter/-/blob/main/LICENSE
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /api
 func main() {
-	dbPath := "todos.db"
+	db, err := gorm.Open(sqlite.Open("nooter.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Falha ao conectar ao banco de dados: ", err)
+	}
 
-	defaultStorage := &storage.DefaultStorage{}
-	defaultStorage.InitDB(dbPath)
+	controllers.DB = db
 
-	r := routes.SetupRouter(defaultStorage)
+	initDB("nooter.db")
 
-	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
+	r := gin.Default()
 
-	fmt.Println("Server is running on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	r.Use(middlewares.LoggerMiddleware())
+
+	routes.NoteRoutes(r)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	r.Run(":8080")
+}
+
+func initDB(filepath string) {
+	db, err := sql.Open("sqlite3", filepath)
+	if err != nil {
+		log.Fatalf("Failed to open database: %v", err)
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	fmt.Println("Database connection established")
+
+	runMigrations(db)
+}
+
+func runMigrations(db *sql.DB) {
+	if db == nil {
+		log.Fatal("Database is not initialized")
+	}
+
+	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
+	if err != nil {
+		log.Fatalf("Could not start SQL driver: %v", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"sqlite3", driver)
+
+	if err != nil {
+		log.Fatalf("Migration setup failed: %v", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Could not run up migrations: %v", err)
+	}
+
+	fmt.Println("Migrations ran successfully")
 }
