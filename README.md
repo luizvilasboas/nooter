@@ -48,6 +48,10 @@ nooter is a web application for creating and managing notes. This project consis
 
 4. Access the interactive Swagger documentation at: `http://localhost:8080/swagger/index.html`.
 
+### Using docker
+
+You can pull the image from [Docker Hub](https://hub.docker.com/repository/docker/olooeez/nooter/general).
+
 ## Testing
 
 Run tests using the following command:
