@@ -30,7 +30,7 @@ nooter is a web application for creating and managing notes. This project consis
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/nooter.git
+   git clone https://github.com/luizvilasboas/nooter.git
    cd nooter
    ```
 
@@ -82,4 +82,4 @@ Contributions are welcome! Feel free to open issues or submit pull requests to i
 
 ## License
 
-This project is licensed under the [MIT License](https://gitlab.com/olooeez/nooter/-/blob/main/LICENSE).
+This project is licensed under the [MIT License](https://github.com/luizvilasboas/nooter/blob/main/LICENSE).
